@@ -4,6 +4,7 @@ const cors = require('cors')
 require('dotenv').config()
 const port = process.env.PORT || 5000
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const jwt = require('jsonwebtoken')
 
 app.use(cors())
 app.use(express.json())
@@ -35,10 +36,22 @@ async function run() {
             res.send(products)
         })
 
+        app.get('/inventory/myItems', async (req, res) => {
+            const email = req.query.email
+            console.log(email)
+            const query = { email: email }
+            const cursor = productCollection.find(query)
+            const product = await cursor.toArray()
+            res.send(product)
+        })
+
+
+
+
+
+
         app.delete('/inventory/:id', async (req, res) => {
-            console.log(req.query)
             const id = req.params.id
-            console.log(id)
             const query = { _id: ObjectId(id) }
             const result = await productCollection.deleteOne(query);
             res.send(result)
@@ -71,8 +84,10 @@ async function run() {
         //adding email from login
         app.post('/login', async (req, res) => {
             const user = req.body
-            console.log(user)
-            res.send(user)
+            const accessToken = jwt.sign(user, process.env.ACCESS_SECRET_TOKEN, {
+                expiresIn: '1d'
+            })
+            res.send({ accessToken })
 
         })
 
