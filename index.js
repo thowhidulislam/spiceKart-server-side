@@ -15,7 +15,7 @@ function verifyJWT(req, res, next) {
         return res.status(401).send({ message: 'unauthorized access' })
     }
     const token = authHeader.split(' ')[1]
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    jwt.verify(token, process.env.ACCESS_SECRET_TOKEN, (err, decoded) => {
         if (err) {
             return res.status(403).send({ message: 'Forbidden access' })
         }
@@ -39,8 +39,6 @@ async function run() {
             const newProducts = req.body
             const product = await productCollection.insertOne(newProducts)
             res.send(product)
-
-
         })
 
         app.get('/inventory', async (req, res) => {
@@ -50,6 +48,7 @@ async function run() {
             res.send(products)
         })
 
+        //to show items of the logged in user
         app.get('/inventory/myItems', verifyJWT, async (req, res) => {
             const decodedEmail = req.decoded.email
             const email = req.query.email
@@ -94,18 +93,15 @@ async function run() {
             res.send(result)
         })
 
-        //adding email from login
         app.post('/login', async (req, res) => {
             const user = req.body
             const accessToken = jwt.sign(user, process.env.ACCESS_SECRET_TOKEN, {
                 expiresIn: '1d'
             })
             res.send({ accessToken })
-
         })
     }
     finally {
-
     }
 }
 run().catch(console.dir)
