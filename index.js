@@ -39,77 +39,141 @@ async function run() {
 
     const productCollection = client.db("spiceKart").collection("product");
 
-    app.post("/inventory", async (req, res) => {
-      const newProducts = req.body;
-      const product = await productCollection.insertOne(newProducts);
-      res.send(product);
-    });
+    // app.post("/inventory", async (req, res) => {
+    //   const newProducts = req.body;
+    //   const product = await productCollection.insertOne(newProducts);
+    //   res.send(product);
+    // });
 
-    app.get("/inventory", async (req, res) => {
-      const cursor = productCollection.find({});
-      const products = await cursor.toArray();
-      res.send(products);
-    });
+    // app.get("/inventory", async (req, res) => {
+    //   const cursor = productCollection.find({});
+    //   const products = await cursor.toArray();
+    //   res.send(products);
+    // });
 
-    //to show items of the logged in user
-    app.get("/inventory/myItems", verifyJWT, async (req, res) => {
-      const decodedEmail = req.decoded.email;
-      const email = req.query.email;
-      if (email === decodedEmail) {
-        const query = { email: email };
-        const cursor = productCollection.find(query);
-        const product = await cursor.toArray();
-        res.send(product);
-      } else {
-        res.status(403).send({ message: "forbidden access" });
-      }
-    });
+    // //to show items of the logged in user
+    // app.get("/inventory/myItems", verifyJWT, async (req, res) => {
+    //   const decodedEmail = req.decoded.email;
+    //   const email = req.query.email;
+    //   if (email === decodedEmail) {
+    //     const query = { email: email };
+    //     const cursor = productCollection.find(query);
+    //     const product = await cursor.toArray();
+    //     res.send(product);
+    //   } else {
+    //     res.status(403).send({ message: "forbidden access" });
+    //   }
+    // });
 
-    app.delete("/inventory/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const result = await productCollection.deleteOne(query);
-      res.send(result);
-      console.log(result);
-    });
+    // app.delete("/inventory/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const query = { _id: ObjectId(id) };
+    //   const result = await productCollection.deleteOne(query);
+    //   res.send(result);
+    //   console.log(result);
+    // });
 
-    app.get("/inventory/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const product = await productCollection.findOne(query);
-      res.send(product);
-    });
+    // app.get("/inventory/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const query = { _id: ObjectId(id) };
+    //   const product = await productCollection.findOne(query);
+    //   res.send(product);
+    // });
 
-    app.put("/inventory/:id", async (req, res) => {
-      const id = req.params.id;
-      const updatedProduct = req.body;
-      console.log(updatedProduct);
-      const filter = { _id: ObjectId(id) };
-      const options = { upsert: true };
-      const updateDoc = {
-        $set: {
-          quantity: updatedProduct.quantity,
-        },
-      };
-      const result = await productCollection.updateOne(
-        filter,
-        updateDoc,
-        options
-      );
-      res.send(result);
-    });
+    // app.put("/inventory/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const updatedProduct = req.body;
+    //   console.log(updatedProduct);
+    //   const filter = { _id: ObjectId(id) };
+    //   const options = { upsert: true };
+    //   const updateDoc = {
+    //     $set: {
+    //       quantity: updatedProduct.quantity,
+    //     },
+    //   };
+    //   const result = await productCollection.updateOne(
+    //     filter,
+    //     updateDoc,
+    //     options
+    //   );
+    //   res.send(result);
+    // });
 
-    app.post("/login", async (req, res) => {
-      const user = req.body;
-      const accessToken = jwt.sign(user, process.env.ACCESS_SECRET_TOKEN, {
-        expiresIn: "1d",
-      });
-      res.send({ accessToken });
-    });
+    // app.post("/login", async (req, res) => {
+    //   const user = req.body;
+    //   const accessToken = jwt.sign(user, process.env.ACCESS_SECRET_TOKEN, {
+    //     expiresIn: "1d",
+    //   });
+    //   res.send({ accessToken });
+    // });
   } finally {
   }
 }
 run().catch(console.dir);
+
+app.post("/inventory", async (req, res) => {
+  const newProducts = req.body;
+  const product = await productCollection.insertOne(newProducts);
+  res.send(product);
+});
+
+app.get("/inventory", async (req, res) => {
+  const cursor = productCollection.find({});
+  const products = await cursor.toArray();
+  res.send(products);
+});
+
+//to show items of the logged in user
+app.get("/inventory/myItems", verifyJWT, async (req, res) => {
+  const decodedEmail = req.decoded.email;
+  const email = req.query.email;
+  if (email === decodedEmail) {
+    const query = { email: email };
+    const cursor = productCollection.find(query);
+    const product = await cursor.toArray();
+    res.send(product);
+  } else {
+    res.status(403).send({ message: "forbidden access" });
+  }
+});
+
+app.delete("/inventory/:id", async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: ObjectId(id) };
+  const result = await productCollection.deleteOne(query);
+  res.send(result);
+  console.log(result);
+});
+
+app.get("/inventory/:id", async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: ObjectId(id) };
+  const product = await productCollection.findOne(query);
+  res.send(product);
+});
+
+app.put("/inventory/:id", async (req, res) => {
+  const id = req.params.id;
+  const updatedProduct = req.body;
+  console.log(updatedProduct);
+  const filter = { _id: ObjectId(id) };
+  const options = { upsert: true };
+  const updateDoc = {
+    $set: {
+      quantity: updatedProduct.quantity,
+    },
+  };
+  const result = await productCollection.updateOne(filter, updateDoc, options);
+  res.send(result);
+});
+
+app.post("/login", async (req, res) => {
+  const user = req.body;
+  const accessToken = jwt.sign(user, process.env.ACCESS_SECRET_TOKEN, {
+    expiresIn: "1d",
+  });
+  res.send({ accessToken });
+});
 
 app.get("/", (req, res) => {
   res.send("warehouse management");
